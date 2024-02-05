@@ -88,6 +88,7 @@ class MoveState extends State {
         }
         else{
             hero.setVelocityX(0);
+            hero.direction.x = 0;
         }
     }
 }

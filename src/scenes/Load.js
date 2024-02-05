@@ -105,14 +105,21 @@ class Load extends Phaser.Scene{
         //Add collision check when player swings
         this.physics.add.collider(this.swordHitbox,this.slime,(sword,enemy)=>{
             enemy.setTint(0xFF0000);
-            enemy.setVelocityX(100);
-            this.time.delayedCall(1000, () => {
+            enemy.setVelocityX(500 * this.player.direction.x);
+            enemy.setVelocityY(500 * this.player.direction.y);
+            this.time.delayedCall(300, () => {
                 enemy.clearTint();
                 enemy.setVelocity(0);
             })
         });
         this.physics.add.collider(this.swordHitbox2,this.slime,(sword,enemy)=>{
-            console.log('hit');
+            enemy.setTint(0xFF0000);
+            enemy.setVelocityY(500 * this.player.direction.y);
+            enemy.setVelocityX(500 * this.player.direction.x);
+            this.time.delayedCall(300, () => {
+                enemy.clearTint();
+                enemy.setVelocity(0);
+            })
         });
     }
 
