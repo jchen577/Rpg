@@ -13,8 +13,10 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 }
 class IdleState extends State {//Player idle state
     enter(scene, hero) {
-        hero.body.setVelocity(0);
-        hero.anims.stop();
+        if(scene.input.keyboard.enabled == true){
+            hero.body.setVelocity(0);
+            hero.anims.stop();
+        }
     }
 
     execute(scene,hero){
@@ -116,8 +118,16 @@ class IdleSwingState extends State{
             hero.anims.play(`swingR`, true);
         }
         hero.once('animationcomplete', () => {
+
             this.stateMachine.transition('idle');
         })
         return; 
+    }
+}
+
+class hurtState extends State{
+    execute(scene,hero){
+        hero.setVelocityX(-100 * hero.direction.x);
+        hero.setVelocityX(-100 * hero.direction.x);
     }
 }

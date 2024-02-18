@@ -8,14 +8,16 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         //set player values
         this.direction = new Phaser.Math.Vector2(0)
         this.velocityS = 100;
+        this.hit = false;
 
     }
 
 }
 
 class IdleState extends State {//Player idle state
-    enter(scene, enemy) {
-        enemy.body.setVelocity(0);
-        enemy.anims.stop();
+    execute(){
+        if(!this.hit){
+            
+        }
     }
 }
