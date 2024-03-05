@@ -5,6 +5,8 @@ class Load extends Phaser.Scene{
     preload(){
         this.load.spritesheet('playerS','./assets/sprites/characters/player.png',{frameWidth: 48, frameHeight: 48});
         this.load.spritesheet('slimeS','./assets/sprites/characters/slime.png',{frameWidth: 32, frameHeight: 32});
+        this.load.tilemapTiledJSON('tilemap','assets/wipMap.tmj');
+        this.load.image('baseTiles','assets/spritesheet.png ');
     }
 
     create(){
