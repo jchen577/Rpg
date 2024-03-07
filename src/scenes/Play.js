@@ -63,7 +63,7 @@ class Play extends Phaser.Scene{
         this.physics.world.setBounds(0,0,map.widthInPixels,map.heightInPixels);
 
 
-        for(let i = 0; i <5 ; i++){//Spawn Slimes on the map
+        for(let i = 0; i <10 ; i++){//Spawn Slimes on the map
             let spaw = Math.floor(Math.random()*10);
             let slime = this.physics.add.sprite(this.spawnLoc[spaw].x,this.spawnLoc[spaw].y,'slimeS').setScale(3,3);
             slime.setSize(16,16);
@@ -103,6 +103,13 @@ class Play extends Phaser.Scene{
                 enemy.hp -=1;
                 if(enemy.hp <=0){
                     enemy.destroy();
+                    this.player.exp += 1;
+                    if(this.player.exp >= this.player.expToNextLvl){//level up logic
+                        this.player.lvl +=1;
+                        this.player.exp = 0;
+                        this.player.expToNextLvl = Math.floor(Math.pow(this.player.lvl/0.5,2));
+                        console.log(this.player.lvl);
+                    }
                 }
                 else{
                     enemy.setTint(0xFF0000);
@@ -124,6 +131,13 @@ class Play extends Phaser.Scene{
                 enemy.hp -=1;
                 if(enemy.hp <=0){
                     enemy.destroy();
+                    this.player.exp += 1;
+                    if(this.player.exp >= this.player.expToNextLvl){//level up logic
+                        this.player.lvl +=1;
+                        this.player.exp = 0;
+                        this.player.expToNextLvl = Math.floor(Math.pow(this.player.lvl/0.5,2));
+                        console.log(this.player.lvl);
+                    }
                 }
                 else{
                     enemy.setTint(0xFF0000);
@@ -146,12 +160,18 @@ class Play extends Phaser.Scene{
         this.blackBar3 = this.add.rectangle(-100,config.height-100,2,20,0x000000).setAlpha(0);
         this.blackBar4 = this.add.rectangle(-100,config.height-100,2,20,0x000000).setAlpha(0);
 
+        //Player xp bar
+        this.xpBlack = this.add.rectangle(-100,-100,225,35,0x000000).setScrollFactor(0,0);
+        this.xp = this.add.rectangle(this.cameras.main.centerX -100, this.cameras.main.centerY -100,200,20,0xFFA500);
+        this.xp.setScrollFactor(0,0);
+        this.xpText = this.add.text(-100,-100,'EXP').setScrollFactor(0,0);
+
         this.hitTimer = this.time.now;
         this.lastHit = this.time.now;
         this.hpShowStart = this.time.now;
         this.hpShowTime = this.time.now+1000;
 
-        this.physics.add.overlap(this.player,this.mobs,(player,enemy)=>{//Player gets hit colision
+        this.physics.add.overlap(this.player,this.mobs,(player,enemy)=>{//Player gets hit collision
             let dirX = this.player.direction.x;
             let dirY = this.player.direction.y;
             if(dirX == 0){
@@ -184,6 +204,12 @@ class Play extends Phaser.Scene{
 
     update(){
         this.playerFSM.step();
+        this.xp.setPosition(this.cameras.main.centerX - config.width/2+150,this.cameras.main.centerY + config.height/2 -50);
+        this.xpBlack.setPosition(this.cameras.main.centerX - config.width/2+150,this.cameras.main.centerY + config.height/2 -50);
+        this.xpText.setPosition(this.cameras.main.centerX - config.width/2+50,this.cameras.main.centerY + config.height/2 -55)
+
+        this.xp.width = (this.player.exp/this.player.expToNextLvl)*200;
+
         if(this.playerHP > 0){
             this.healthBar.width = (this.playerHP/400)*80;
         }
@@ -242,7 +268,7 @@ class Play extends Phaser.Scene{
                     }
                 }
                 else{
-                    if(enemy.currSpeed > enemy.lastSpeed + 1000){
+                    if(enemy.currSpeed > enemy.lastSpeed + 1000){//enemy randomized movement
                         let direc = Math.floor(Math.random()*5);
                         if(direc == 0){
                             enemy.setVelocity(0);

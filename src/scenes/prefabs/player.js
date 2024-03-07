@@ -8,6 +8,9 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         //set player values
         this.direction = new Phaser.Math.Vector2(0)
         this.velocityS = 100;
+        this.lvl = 1;
+        this.exp = 0;
+        this.expToNextLvl = Math.floor(Math.pow(this.lvl/0.5,2));
 
     }
 }

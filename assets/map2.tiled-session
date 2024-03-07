@@ -3,20 +3,37 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "wipMap.tmj",
+    "activeFile": "C:/Users/Jacky C/Desktop/Wip Games/80j/sprites/map.tmj",
     "expandedProjectPaths": [
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
+        "": {
+            "scaleInEditor": 1
+        },
         "#adventureTiles": {
             "scaleInDock": 1.5
+        },
+        "#tiles": {
+            "scaleInDock": 1.5
+        },
+        "C:/Users/Jacky C/Desktop/Wip Games/80j/sprites/map.tmj": {
+            "scale": 0.5,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 3599,
+                "y": -139
+            }
+        },
+        "C:/Users/Jacky C/Desktop/Wip Games/80j/sprites/map.tmj#tiles": {
+            "scaleInDock": 3
         },
         "C:/Users/Jacky C/Desktop/Wip Games/Make-The-Fake-main/assets/TestMap.tmj": {
             "scale": 0.23987499999999998,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 1602.9181865554979,
-                "y": -268.8900468994268
+                "x": 1598.7493486190726,
+                "y": -273.05888483585204
             }
         },
         "C:/Users/Jacky C/Desktop/Wip Games/Make-The-Fake-main/assets/TestMap.tmj#platforms": {
@@ -26,8 +43,8 @@
             "scale": 1,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 694.5,
-                "y": 347.5
+                "x": 692.5,
+                "y": 346.5
             }
         },
         "wipMap.tmj#adventureTiles": {
@@ -36,21 +53,26 @@
             "scaleInEditor": 1
         }
     },
-    "last.imagePath": "C:/Users/Jacky C/Desktop/Wip Games/Rpg/assets",
+    "last.imagePath": "C:/Users/Jacky C/Desktop/Wip Games/80j/sprites",
     "map.fixedSize": true,
-    "map.height": 30,
-    "map.tileHeight": 64,
-    "map.tileWidth": 64,
+    "map.height": 100,
+    "map.lastUsedFormat": "json",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "map.width": 100,
     "openFiles": [
-        "wipMap.tmj"
+        "C:/Users/Jacky C/Desktop/Wip Games/80j/sprites/map.tmj"
     ],
     "project": "map2.tiled-project",
+    "property.type": "bool",
     "recentFiles": [
+        "C:/Users/Jacky C/Desktop/Wip Games/80j/sprites/map.tmj",
+        "C:/Users/Jacky C/Desktop/Wip Games/Make-The-Fake-main/assets/TestMap.tmj",
         "wipMap.tmj"
     ],
     "tileset.embedInMap": true,
     "tileset.tileSize": {
-        "height": 64,
-        "width": 64
+        "height": 16,
+        "width": 16
     }
 }
