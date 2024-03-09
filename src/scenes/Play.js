@@ -6,6 +6,8 @@ class Play extends Phaser.Scene{
     }
 
     create(){
+        this.maxSpawns = 10;
+        this.currSpawns = 0;
         this.playerHP = 400;
         this.keys = this.input.keyboard.createCursorKeys();
         this.keys = this.input.keyboard.addKeys({ up: 'W', left: 'A', down: 'S', right: 'D',});
@@ -62,23 +64,6 @@ class Play extends Phaser.Scene{
         this.cameras.main.startFollow(this.player,true,0.25,0.25);
         this.physics.world.setBounds(0,0,map.widthInPixels,map.heightInPixels);
 
-
-        for(let i = 0; i <10 ; i++){//Spawn Slimes on the map
-            let spaw = Math.floor(Math.random()*10);
-            let slime = this.physics.add.sprite(this.spawnLoc[spaw].x,this.spawnLoc[spaw].y,'slimeS').setScale(3,3);
-            slime.setSize(16,16);
-            slime.anims.play('slimeIdle');
-            slime.body.setCollideWorldBounds(true);
-            slime.body.setImmovable();
-            slime.hit = false;
-            slime.hp = this.mobHP;
-            slime.lastHit = this.time.now;
-            slime.hitTimer = this.time.now;
-            slime.lastSpeed = this.time.now;
-            slime.currSpeed = this.time.now;
-            this.mobs.add(slime);
-        }
-
         Layer1.setCollisionByProperty({
             collisions: true,
         });
@@ -103,6 +88,7 @@ class Play extends Phaser.Scene{
                 enemy.hp -=1;
                 if(enemy.hp <=0){
                     enemy.destroy();
+                    this.currSpawns--;
                     this.player.exp += 1;
                     if(this.player.exp >= this.player.expToNextLvl){//level up logic
                         this.player.lvl +=1;
@@ -131,6 +117,7 @@ class Play extends Phaser.Scene{
                 enemy.hp -=1;
                 if(enemy.hp <=0){
                     enemy.destroy();
+                    this.currSpawns--;
                     this.player.exp += 1;
                     if(this.player.exp >= this.player.expToNextLvl){//level up logic
                         this.player.lvl +=1;
@@ -204,6 +191,11 @@ class Play extends Phaser.Scene{
 
     update(){
         this.playerFSM.step();
+        if(this.currSpawns <= 10){
+            this.currSpawns++;
+            this.time.delayedCall(1000, mobSpawn, [this,'slimeS']);
+            //mobSpawn(this,'slimeS');
+        }
         this.xp.setPosition(this.cameras.main.centerX - config.width/2+150,this.cameras.main.centerY + config.height/2 -50);
         this.xpBlack.setPosition(this.cameras.main.centerX - config.width/2+150,this.cameras.main.centerY + config.height/2 -50);
         this.xpText.setPosition(this.cameras.main.centerX - config.width/2+50,this.cameras.main.centerY + config.height/2 -55)
@@ -300,4 +292,21 @@ function inputOn(){
     this.input.keyboard.enabled = true;
     this.player.clearTint(0xFF0000);
     this.player.setVelocity(0);
+}
+
+function mobSpawn(scene,mobName){
+    let spaw = Math.floor(Math.random()*10);
+    let slime = scene.physics.add.sprite(scene.spawnLoc[spaw].x,scene.spawnLoc[spaw].y,mobName).setScale(3,3);
+    slime.setSize(16,16);
+    slime.anims.play('slimeIdle');
+    slime.body.setCollideWorldBounds(true);
+    slime.body.setImmovable();
+    slime.hit = false;
+    slime.hp = scene.mobHP;
+    slime.lastHit = scene.time.now;
+    slime.hitTimer = scene.time.now;
+    slime.lastSpeed = scene.time.now;
+    slime.currSpeed = scene.time.now;
+    scene.mobs.add(slime);
+    //scene.currSpawns++;
 }
