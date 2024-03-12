@@ -74,6 +74,16 @@ class Load extends Phaser.Scene{
             repeat: -1
         });
         this.scene.start('playScene');
+
+        this.anims.create({
+            key: 'death',
+            frames: this.anims.generateFrameNumbers('playerS',{
+                start:54,
+                end: 56,
+            }),
+            frameRate: 1,
+            repeat: 0,
+        });
     }
 
     update(){

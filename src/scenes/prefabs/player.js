@@ -11,6 +11,9 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.lvl = 1;
         this.exp = 0;
         this.expToNextLvl = Math.floor(Math.pow(this.lvl/0.5,2));
+        this.playerDmg = 1;
+        this.playerHP = 400;
+        this.playerHPMax = 400;
 
     }
 }
@@ -18,14 +21,14 @@ class IdleState extends State {//Player idle state
     enter(scene, hero) {
         if(scene.input.keyboard.enabled == true){
             hero.body.setVelocity(0);
-            hero.anims.stop();
+            //hero.anims.stop();
         }
     }
 
     execute(scene,hero){
         scene.swordHitbox.body.x = -100;
         scene.swordHitbox2.body.x = -100;
-        const { left, right, up, down} = scene.keys;
+        const { left, right, up, down, shift} = scene.keys;
         //transition to new states
         if(left.isDown || right.isDown || up.isDown || down.isDown ) {
             this.stateMachine.transition('move');
@@ -43,7 +46,7 @@ class IdleState extends State {//Player idle state
 
 class MoveState extends State {
     execute(scene,hero){
-        const { left, right, up, down} = scene.keys;
+        const { left, right, up, down, shift} = scene.keys;
         
         scene.swordHitbox.body.x = -100;
         scene.swordHitbox2.body.x = -100;
@@ -95,6 +98,12 @@ class MoveState extends State {
             hero.setVelocityX(0);
             hero.direction.x = 0;
         }
+
+        if(Phaser.Input.Keyboard.JustDown(shift)){
+            this.stateMachine.transition('dash');
+            return;
+        }
+
     }
 }
 
@@ -130,7 +139,55 @@ class IdleSwingState extends State{
 
 class hurtState extends State{
     execute(scene,hero){
-        hero.setVelocityX(-100 * hero.direction.x);
-        hero.setVelocityX(-100 * hero.direction.x);
+        hero.setVelocityX(-300 * hero.direction.x);
+        hero.setVelocityX(-300 * hero.direction.x);
+    }
+}
+
+class DashState extends State {
+    enter(scene, hero) {
+        hero.setVelocity(0);
+        //hero.setTint(0x00AA00)     // turn green
+        if(hero.direction.y <0){
+            hero.setVelocityY(-hero.velocityS * 3)
+            hero.anims.play(`swingUp`)
+        }
+        else if(hero.direction.y >0){
+            hero.setVelocityY(hero.velocityS * 3)
+            hero.anims.play(`swingDown`)
+        }
+        else if(hero.direction.x >0){
+            hero.setVelocityX(hero.velocityS * 3)
+            hero.anims.play(`swingR`)
+        }
+        else if(hero.direction.x <0){
+            hero.setVelocityX(-hero.velocityS * 3)
+            hero.anims.play(`swingR`)
+        }
+
+        // set a short cooldown delay before going back to idle
+        scene.time.delayedCall(300, () => {
+            //hero.clearTint()
+            this.stateMachine.transition('idle')
+        })
+    }
+
+    execute(scene,hero){
+        if(hero.direction.y <0){
+            scene.swordHitbox2.body.x = hero.x-32;
+            scene.swordHitbox2.body.y = hero.y-20;
+        }
+        else if(hero.direction.y >0){
+            scene.swordHitbox2.body.x = hero.x-26;
+            scene.swordHitbox2.body.y = hero.y+30;
+        }
+        else if(hero.direction.x >0){
+            scene.swordHitbox.body.x = hero.x+10;
+            scene.swordHitbox.body.y = hero.y;
+        }
+        else if(hero.direction.x <0){
+            scene.swordHitbox.body.x = hero.x-50;
+            scene.swordHitbox.body.y = hero.y;
+        }
     }
 }

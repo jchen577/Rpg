@@ -6,11 +6,11 @@ class Play extends Phaser.Scene{
     }
 
     create(){
+        this.dead = false;
         this.maxSpawns = 10;
         this.currSpawns = 0;
-        this.playerHP = 400;
         this.keys = this.input.keyboard.createCursorKeys();
-        this.keys = this.input.keyboard.addKeys({ up: 'W', left: 'A', down: 'S', right: 'D',});
+        this.keys = this.input.keyboard.addKeys({ up: 'W', left: 'A', down: 'S', right: 'D', shift: 'SHIFT',});
 
         const map = this.make.tilemap({key:'tilemap'});//Tilemap
         const tileset = map.addTilesetImage('adventureTiles','baseTiles');
@@ -76,6 +76,7 @@ class Play extends Phaser.Scene{
             move: new MoveState(),
             idleSwing: new IdleSwingState(),
             hurt: new hurtState(),
+            dash: new DashState(),
         }, [this, this.player]);
         this.player.body.allowGravity = false;
         this.player.body.setImmovable = false;
@@ -85,7 +86,7 @@ class Play extends Phaser.Scene{
             if(enemy.lastHit > enemy.hitTimer +350){
                 enemy.hitTimer = enemy.lastHit;
                 enemy.hit = true;
-                enemy.hp -=1;
+                enemy.hp -= this.player.playerDmg;
                 if(enemy.hp <=0){
                     enemy.destroy();
                     this.currSpawns--;
@@ -94,7 +95,10 @@ class Play extends Phaser.Scene{
                         this.player.lvl +=1;
                         this.player.exp = 0;
                         this.player.expToNextLvl = Math.floor(Math.pow(this.player.lvl/0.5,2));
-                        console.log(this.player.lvl);
+                        this.player.playerDmg += .5;
+                        this.player.playerHPMax += 100;
+                        this.player.playerHP = this.player.playerHPMax;
+                        console.log(this.player.lvl, this.player.playerDmg);
                     }
                 }
                 else{
@@ -114,7 +118,7 @@ class Play extends Phaser.Scene{
             if(enemy.lastHit > enemy.hitTimer +350){
                 enemy.hitTimer = enemy.lastHit;
                 enemy.hit = true;
-                enemy.hp -=1;
+                enemy.hp -= this.player.playerDmg;
                 if(enemy.hp <=0){
                     enemy.destroy();
                     this.currSpawns--;
@@ -123,7 +127,10 @@ class Play extends Phaser.Scene{
                         this.player.lvl +=1;
                         this.player.exp = 0;
                         this.player.expToNextLvl = Math.floor(Math.pow(this.player.lvl/0.5,2));
-                        console.log(this.player.lvl);
+                        this.player.playerDmg += .5;
+                        this.player.playerHPMax += 100;
+                        this.player.playerHP = this.player.playerHPMax;
+                        console.log(this.player.lvl,this.player.playerDmg);
                     }
                 }
                 else{
@@ -178,7 +185,7 @@ class Play extends Phaser.Scene{
                 this.input.keyboard.enabled = false;
                 this.input.keyboard.resetKeys();
                 this.time.delayedCall(300,inputOn,[],this);
-                this.playerHP -= 10;
+                this.player.playerHP -= 100;
                 this.hitTimer = this.lastHit;
                 this.player.setVelocityX(-300*dirX);
                 this.player.setVelocityY(-300*dirY);
@@ -190,41 +197,96 @@ class Play extends Phaser.Scene{
     }
 
     update(){
-        this.playerFSM.step();
-        if(this.currSpawns <= 10){
-            this.currSpawns++;
-            this.time.delayedCall(1000, mobSpawn, [this,'slimeS']);
-            //mobSpawn(this,'slimeS');
-        }
-        this.xp.setPosition(this.cameras.main.centerX - config.width/2+150,this.cameras.main.centerY + config.height/2 -50);
-        this.xpBlack.setPosition(this.cameras.main.centerX - config.width/2+150,this.cameras.main.centerY + config.height/2 -50);
-        this.xpText.setPosition(this.cameras.main.centerX - config.width/2+50,this.cameras.main.centerY + config.height/2 -55)
+        if(this.player.playerHP > 0){
+            this.playerFSM.step();
+            if(this.currSpawns <= 10){
+                this.currSpawns++;
+                this.time.delayedCall(1000, mobSpawn, [this,'slimeS','slimeIdle']);
+                //mobSpawn(this,'slimeS');
+            }
+            this.xp.setPosition(this.cameras.main.centerX - config.width/2+150,this.cameras.main.centerY + config.height/2 -50);
+            this.xpBlack.setPosition(this.cameras.main.centerX - config.width/2+150,this.cameras.main.centerY + config.height/2 -50);
+            this.xpText.setPosition(this.cameras.main.centerX - config.width/2+50,this.cameras.main.centerY + config.height/2 -55)
 
-        this.xp.width = (this.player.exp/this.player.expToNextLvl)*200;
+            this.xp.width = (this.player.exp/this.player.expToNextLvl)*200;
 
-        if(this.playerHP > 0){
-            this.healthBar.width = (this.playerHP/400)*80;
-        }
-        else{
-            this.healthBar.width = 0;
-        }
+            this.healthBar.width = (this.player.playerHP/this.player.playerHPMax)*80;
 
-        if(this.hpShowTime < this.hpShowStart + 1000){//Showing playerhp bar
-            this.healthBar.x = this.player.x-30;
-            this.blackBar.x = this.player.x;
-            this.blackBar2.x = this.player.x;
-            this.blackBar3.x = this.player.x+40;
-            this.blackBar4.x = this.player.x-40;
-            this.healthBar.y = this.player.y+80;
-            this.blackBar.y = this.player.y+90;
-            this.blackBar2.y = this.player.y+70;
-            this.blackBar3.y = this.player.y+80;
-            this.blackBar4.y = this.player.y+80;
-            this.healthBar.setAlpha(1);
-            this.blackBar.setAlpha(1);
-            this.blackBar2.setAlpha(1);
-            this.blackBar3.setAlpha(1);
-            this.blackBar4.setAlpha(1);
+            if(this.hpShowTime < this.hpShowStart + 1000){//Showing playerhp bar
+                this.healthBar.x = this.player.x-30;
+                this.blackBar.x = this.player.x;
+                this.blackBar2.x = this.player.x;
+                this.blackBar3.x = this.player.x+40;
+                this.blackBar4.x = this.player.x-40;
+                this.healthBar.y = this.player.y+80;
+                this.blackBar.y = this.player.y+90;
+                this.blackBar2.y = this.player.y+70;
+                this.blackBar3.y = this.player.y+80;
+                this.blackBar4.y = this.player.y+80;
+                this.healthBar.setAlpha(1);
+                this.blackBar.setAlpha(1);
+                this.blackBar2.setAlpha(1);
+                this.blackBar3.setAlpha(1);
+                this.blackBar4.setAlpha(1);
+            }
+            else{
+                this.healthBar.setAlpha(0);
+                this.blackBar.setAlpha(0);
+                this.blackBar2.setAlpha(0);
+                this.blackBar3.setAlpha(0);
+                this.blackBar4.setAlpha(0);
+            }
+            this.hpShowTime = this.time.now;
+            this.mobs.children.each(function(enemy) {//Mobs check distance from player and move accordingly
+                if(!enemy.hit){
+                    if(Phaser.Math.Distance.BetweenPoints(enemy, this.player) < 300) {
+
+                        // if player to left of enemy AND enemy moving to right (or not moving)
+                        if (this.player.x < enemy.x && enemy.body.velocity.x >= 0) {
+                            // move enemy to left
+                            enemy.setVelocityX(-this.mobSpeed);
+                        }
+                        // if player to right of enemy AND enemy moving to left (or not moving)
+                        else if (this.player.x > enemy.x && enemy.body.velocity.x <= 0) {
+                            // move enemy to right
+                            enemy.setVelocityX(this.mobSpeed);
+                        }
+
+                        if (this.player.y < enemy.y && enemy.body.velocity.y >= 0) {
+                            // move enemy to left
+                            enemy.setVelocityY(-this.mobSpeed);
+                        }
+                        // if player to right of enemy AND enemy moving to left (or not moving)
+                        else if (this.player.y > enemy.y && enemy.body.velocity.y <= 0) {
+                            // move enemy to right
+                            enemy.setVelocityY(this.mobSpeed);
+                        }
+                    }
+                    else{
+                        if(enemy.currSpeed > enemy.lastSpeed + 1000){//enemy randomized movement
+                            let direc = Math.floor(Math.random()*5);
+                            if(direc == 0){
+                                enemy.setVelocity(0);
+                            }
+                            else if(direc == 1){
+                                enemy.setVelocityY(this.mobSpeed);
+                            }
+                            else if(direc == 2){
+                                enemy.setVelocityY(-this.mobSpeed);
+                            }
+                            else if(direc == 3){
+                                enemy.setVelocityX(this.mobSpeed);
+                            }
+                            else{
+                                enemy.setVelocityX(-this.mobSpeed);
+                            }
+                            enemy.lastSpeed = this.time.now;
+                        }
+                        enemy.currSpeed = this.time.now;
+                    }
+                }
+            }, this);
+
         }
         else{
             this.healthBar.setAlpha(0);
@@ -232,58 +294,14 @@ class Play extends Phaser.Scene{
             this.blackBar2.setAlpha(0);
             this.blackBar3.setAlpha(0);
             this.blackBar4.setAlpha(0);
-        }
-        this.hpShowTime = this.time.now;
-        this.mobs.children.each(function(enemy) {//Mobs check distance from player and move accordingly
-            if(!enemy.hit){
-                if(Phaser.Math.Distance.BetweenPoints(enemy, this.player) < 300) {
-
-                    // if player to left of enemy AND enemy moving to right (or not moving)
-                    if (this.player.x < enemy.x && enemy.body.velocity.x >= 0) {
-                        // move enemy to left
-                        enemy.setVelocityX(-this.mobSpeed);
-                    }
-                    // if player to right of enemy AND enemy moving to left (or not moving)
-                    else if (this.player.x > enemy.x && enemy.body.velocity.x <= 0) {
-                        // move enemy to right
-                        enemy.setVelocityX(this.mobSpeed);
-                    }
-
-                    if (this.player.y < enemy.y && enemy.body.velocity.y >= 0) {
-                        // move enemy to left
-                        enemy.setVelocityY(-this.mobSpeed);
-                    }
-                    // if player to right of enemy AND enemy moving to left (or not moving)
-                    else if (this.player.y > enemy.y && enemy.body.velocity.y <= 0) {
-                        // move enemy to right
-                        enemy.setVelocityY(this.mobSpeed);
-                    }
-                }
-                else{
-                    if(enemy.currSpeed > enemy.lastSpeed + 1000){//enemy randomized movement
-                        let direc = Math.floor(Math.random()*5);
-                        if(direc == 0){
-                            enemy.setVelocity(0);
-                        }
-                        else if(direc == 1){
-                            enemy.setVelocityY(this.mobSpeed);
-                        }
-                        else if(direc == 2){
-                            enemy.setVelocityY(-this.mobSpeed);
-                        }
-                        else if(direc == 3){
-                            enemy.setVelocityX(this.mobSpeed);
-                        }
-                        else{
-                            enemy.setVelocityX(-this.mobSpeed);
-                        }
-                        enemy.lastSpeed = this.time.now;
-                    }
-                    enemy.currSpeed = this.time.now;
-                }
+            if(this.dead == false){
+                this.player.anims.play('death');
+                this.player.once('animationcomplete', () => {
+                    console.log('working');
+                })
             }
-        }, this);
-
+            this.dead = true;
+        }
     }
 
 }
@@ -294,11 +312,11 @@ function inputOn(){
     this.player.setVelocity(0);
 }
 
-function mobSpawn(scene,mobName){
+function mobSpawn(scene,mobName,anim){
     let spaw = Math.floor(Math.random()*10);
     let slime = scene.physics.add.sprite(scene.spawnLoc[spaw].x,scene.spawnLoc[spaw].y,mobName).setScale(3,3);
     slime.setSize(16,16);
-    slime.anims.play('slimeIdle');
+    slime.anims.play(anim);
     slime.body.setCollideWorldBounds(true);
     slime.body.setImmovable();
     slime.hit = false;
