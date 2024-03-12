@@ -73,8 +73,15 @@ class Load extends Phaser.Scene{
             frameRate: 8,
             repeat: -1
         });
-        this.scene.start('playScene');
-
+        this.anims.create({
+            key: 'slimeDeath', 
+            frames: this.anims.generateFrameNumbers('slimeS',{
+                start: 28,
+                end: 32,
+            }), 
+            frameRate: 6,
+            repeat: 0,
+        });
         this.anims.create({
             key: 'death',
             frames: this.anims.generateFrameNumbers('playerS',{
@@ -84,6 +91,7 @@ class Load extends Phaser.Scene{
             frameRate: 1,
             repeat: 0,
         });
+        this.scene.start('playScene');
     }
 
     update(){

@@ -21,7 +21,7 @@ class IdleState extends State {//Player idle state
     enter(scene, hero) {
         if(scene.input.keyboard.enabled == true){
             hero.body.setVelocity(0);
-            //hero.anims.stop();
+            hero.anims.stop();
         }
     }
 
@@ -32,6 +32,11 @@ class IdleState extends State {//Player idle state
         //transition to new states
         if(left.isDown || right.isDown || up.isDown || down.isDown ) {
             this.stateMachine.transition('move');
+            return;
+        }
+
+        if(Phaser.Input.Keyboard.JustDown(shift) && (hero.direction.x != 0 || hero.direction.y != 0)){
+            this.stateMachine.transition('dash');
             return;
         }
 

@@ -10,7 +10,7 @@ class Play extends Phaser.Scene{
         this.maxSpawns = 10;
         this.currSpawns = 0;
         this.keys = this.input.keyboard.createCursorKeys();
-        this.keys = this.input.keyboard.addKeys({ up: 'W', left: 'A', down: 'S', right: 'D', shift: 'SHIFT',});
+        this.keys = this.input.keyboard.addKeys({ up: 'W', left: 'A', down: 'S', right: 'D', shift: 'SHIFT', reset: 'R'});
 
         const map = this.make.tilemap({key:'tilemap'});//Tilemap
         const tileset = map.addTilesetImage('adventureTiles','baseTiles');
@@ -88,7 +88,12 @@ class Play extends Phaser.Scene{
                 enemy.hit = true;
                 enemy.hp -= this.player.playerDmg;
                 if(enemy.hp <=0){
-                    enemy.destroy();
+                    enemy.anims.play('slimeDeath');
+                    enemy.setVelocity(0);
+                    this.mobs.remove(enemy,false,false);
+                    enemy.once('animationcomplete', () => {
+                        enemy.destroy();
+                    });
                     this.currSpawns--;
                     this.player.exp += 1;
                     if(this.player.exp >= this.player.expToNextLvl){//level up logic
@@ -120,7 +125,12 @@ class Play extends Phaser.Scene{
                 enemy.hit = true;
                 enemy.hp -= this.player.playerDmg;
                 if(enemy.hp <=0){
-                    enemy.destroy();
+                    enemy.anims.play('slimeDeath');
+                    enemy.setVelocity(0);
+                    this.mobs.remove(enemy,false,false);
+                    enemy.once('animationcomplete', () => {
+                        enemy.destroy();
+                    });
                     this.currSpawns--;
                     this.player.exp += 1;
                     if(this.player.exp >= this.player.expToNextLvl){//level up logic
@@ -301,6 +311,10 @@ class Play extends Phaser.Scene{
                 })
             }
             this.dead = true;
+            if(this.keys.reset.isDown){
+                console.log('working');
+                this.scene.start('playScene')
+            }
         }
     }
 
