@@ -216,7 +216,7 @@ class Play extends Phaser.Scene{
             }
             this.xp.setPosition(this.cameras.main.centerX - config.width/2+150,this.cameras.main.centerY + config.height/2 -50);
             this.xpBlack.setPosition(this.cameras.main.centerX - config.width/2+150,this.cameras.main.centerY + config.height/2 -50);
-            this.xpText.setPosition(this.cameras.main.centerX - config.width/2+50,this.cameras.main.centerY + config.height/2 -55)
+            this.xpText.setPosition(this.cameras.main.centerX - config.width/2+60,this.cameras.main.centerY + config.height/2 -57)
 
             this.xp.width = (this.player.exp/this.player.expToNextLvl)*200;
 
@@ -307,12 +307,10 @@ class Play extends Phaser.Scene{
             if(this.dead == false){
                 this.player.anims.play('death');
                 this.player.once('animationcomplete', () => {
-                    console.log('working');
                 })
             }
             this.dead = true;
             if(this.keys.reset.isDown){
-                console.log('working');
                 this.scene.start('playScene')
             }
         }
