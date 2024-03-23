@@ -7,15 +7,18 @@ class Play extends Phaser.Scene{
 
     create(){
         this.dead = false;
-        this.maxSpawns = 10;
+        this.maxSpawns = 20;
         this.currSpawns = 0;
+        this.gold = 0;
         this.keys = this.input.keyboard.createCursorKeys();
-        this.keys = this.input.keyboard.addKeys({ up: 'W', left: 'A', down: 'S', right: 'D', shift: 'SHIFT', reset: 'R'});
+        this.keys = this.input.keyboard.addKeys({ up: 'W', left: 'A', down: 'S', right: 'D', shift: 'SHIFT', reset: 'R', inter: 'E'});
 
         const map = this.make.tilemap({key:'tilemap'});//Tilemap
         const tileset = map.addTilesetImage('adventureTiles','baseTiles');
+        const tileset2 = map.addTilesetImage('extraTiles','bonusTiles');
 
         const Layer2 = map.createLayer('Tile Layer 2',tileset);
+        const Layer3 = map.createLayer('Tile Layer 3',tileset2);
         const Layer1 = map.createLayer('Tile Layer 1',tileset);
 
         //enemy spawn points
@@ -29,6 +32,16 @@ class Play extends Phaser.Scene{
         this.enemyS8 = map.findObject('Spawns',obj => obj.name === 'S8');
         this.enemyS9 = map.findObject('Spawns',obj => obj.name === 'S9');
         this.enemyS10 = map.findObject('Spawns',obj => obj.name === 'S10');
+        this.enemyS11 = map.findObject('Spawns',obj => obj.name === 'S11');
+        this.enemyS12 = map.findObject('Spawns',obj => obj.name === 'S12');
+        this.enemyS13 = map.findObject('Spawns',obj => obj.name === 'S13');
+        this.enemyS14 = map.findObject('Spawns',obj => obj.name === 'S14');
+        this.enemyS15 = map.findObject('Spawns',obj => obj.name === 'S15');
+        this.enemyS16 = map.findObject('Spawns',obj => obj.name === 'S16');
+        this.enemyS17 = map.findObject('Spawns',obj => obj.name === 'S17');
+        this.enemyS18 = map.findObject('Spawns',obj => obj.name === 'S18');
+        this.enemyS19 = map.findObject('Spawns',obj => obj.name === 'S19');
+
 
         this.spawnLoc = [];
         this.spawnLoc[0] = this.enemyS;
@@ -41,6 +54,17 @@ class Play extends Phaser.Scene{
         this.spawnLoc[7] = this.enemyS8;
         this.spawnLoc[8] = this.enemyS9;
         this.spawnLoc[9] = this.enemyS10;
+        this.spawnLoc[10] = this.enemyS11;
+        this.spawnLoc[11] = this.enemyS12;
+        this.spawnLoc[12] = this.enemyS13;
+        this.spawnLoc[13] = this.enemyS14;
+        this.spawnLoc[14] = this.enemyS15;
+        this.spawnLoc[15] = this.enemyS16;
+        this.spawnLoc[16] = this.enemyS17;
+        this.spawnLoc[17] = this.enemyS18;
+        this.spawnLoc[18] = this.enemyS19;
+        this.spawnLoc[19] = this.enemyS20;
+
 
         //this.greenB = this.add.rectangle(config.width/2,config.height/2,config.width,config.height,0x355E3B);
         //Create hitboxes for when player attacks
@@ -50,6 +74,8 @@ class Play extends Phaser.Scene{
         this.swordHitbox2 = this.add.rectangle(0,0,64,48,0xffffff);
         this.physics.add.existing(this.swordHitbox2);
         this.swordHitbox2.setAlpha(0);
+
+        this.npcs = this.add.group();
 
         this.mobs = this.add.group();//Mob group
         this.mobSpeed = 40;
@@ -63,6 +89,27 @@ class Play extends Phaser.Scene{
         this.cameras.main.setBounds(0,0,map.widthInPixels,map.heightInPixels);
         this.cameras.main.startFollow(this.player,true,0.25,0.25);
         this.physics.world.setBounds(0,0,map.widthInPixels,map.heightInPixels);
+
+        this.merchant = new NPC(this,200,48,'merchant',0,0).setScale(3.5);
+        this.merchant.setImmovable();
+        this.npcs.add(this.merchant);
+
+        this.quester = new NPC(this,400,48,'quester',0,1).setScale(3.5);
+        this.quester.setImmovable();
+        this.npcs.add(this.quester);
+
+        this.fish = this.add.sprite(140,100,'fish').setScale(3);
+        this.sKey = this.add.sprite(200,100,'sKey').setScale(3);
+        this.katana = this.add.sprite(260,100,'katana').setScale(3);
+        
+        this.coin = this.add.sprite(this.cameras.main.centerX - config.width/2+50,this.cameras.main.centerY + config.height/2-100,'coin').setScale(3).setScrollFactor(0,0);
+        this.coinC = this.add.bitmapText(this.cameras.main.centerX - config.width/2+50,this.cameras.main.centerY + config.height/2-120,'gem_font',`x${this.gold}`,24).setScrollFactor(0);
+
+        this.physics.add.overlap(this.npcs,this.player,(npc,pla)=>{
+            if(Phaser.Input.Keyboard.JustDown(this.keys.inter)){
+                npc.activity(); 
+            }
+        });
 
         Layer1.setCollisionByProperty({
             collisions: true,
@@ -89,6 +136,7 @@ class Play extends Phaser.Scene{
                 enemy.hp -= this.player.playerDmg;
                 if(enemy.hp <=0){
                     enemy.anims.play('slimeDeath');
+                    this.gold += enemy.gDrop;
                     enemy.setVelocity(0);
                     this.mobs.remove(enemy,false,false);
                     enemy.once('animationcomplete', () => {
@@ -126,6 +174,7 @@ class Play extends Phaser.Scene{
                 enemy.hp -= this.player.playerDmg;
                 if(enemy.hp <=0){
                     enemy.anims.play('slimeDeath');
+                    this.gold += enemy.gDrop;
                     enemy.setVelocity(0);
                     this.mobs.remove(enemy,false,false);
                     enemy.once('animationcomplete', () => {
@@ -164,11 +213,13 @@ class Play extends Phaser.Scene{
         this.blackBar3 = this.add.rectangle(-100,config.height-100,2,20,0x000000).setAlpha(0);
         this.blackBar4 = this.add.rectangle(-100,config.height-100,2,20,0x000000).setAlpha(0);
 
+        this.deadText = this.add.bitmapText(-300,0,'gem_font','Press R to Restart',40).setAlpha(0);
+
         //Player xp bar
         this.xpBlack = this.add.rectangle(-100,-100,225,35,0x000000).setScrollFactor(0,0);
         this.xp = this.add.rectangle(this.cameras.main.centerX -100, this.cameras.main.centerY -100,200,20,0xFFA500);
         this.xp.setScrollFactor(0,0);
-        this.xpText = this.add.text(-100,-100,'EXP').setScrollFactor(0,0);
+        this.xpText = this.add.bitmapText(-100,-100,'gem_font','EXP',24).setScrollFactor(0,0);
 
         this.hitTimer = this.time.now;
         this.lastHit = this.time.now;
@@ -190,7 +241,7 @@ class Play extends Phaser.Scene{
                     dirY = 1;
                 }
             }
-            if(this.lastHit > this.hitTimer +100){//Hit delay
+            if(this.lastHit > this.hitTimer +200){//Hit delay
                 this.player.setTint(0xFF0000);
                 this.input.keyboard.enabled = false;
                 this.input.keyboard.resetKeys();
@@ -203,7 +254,6 @@ class Play extends Phaser.Scene{
             this.hpShowStart = this.time.now;
             this.lastHit = this.time.now;
         })
-
     }
 
     update(){
@@ -216,7 +266,9 @@ class Play extends Phaser.Scene{
             }
             this.xp.setPosition(this.cameras.main.centerX - config.width/2+150,this.cameras.main.centerY + config.height/2 -50);
             this.xpBlack.setPosition(this.cameras.main.centerX - config.width/2+150,this.cameras.main.centerY + config.height/2 -50);
-            this.xpText.setPosition(this.cameras.main.centerX - config.width/2+60,this.cameras.main.centerY + config.height/2 -57)
+            this.xpText.setPosition(this.cameras.main.centerX - config.width/2+50,this.cameras.main.centerY + config.height/2 -60);
+
+            this.coinC.text = `x${this.gold}`;
 
             this.xp.width = (this.player.exp/this.player.expToNextLvl)*200;
 
@@ -296,7 +348,9 @@ class Play extends Phaser.Scene{
                     }
                 }
             }, this);
-
+            this.children.bringToTop(this.xpBlack);
+            this.children.bringToTop(this.xp);
+            this.children.bringToTop(this.xpText);
         }
         else{
             this.healthBar.setAlpha(0);
@@ -307,6 +361,9 @@ class Play extends Phaser.Scene{
             if(this.dead == false){
                 this.player.anims.play('death');
                 this.player.once('animationcomplete', () => {
+                    this.deadText.setAlpha(1);
+                    this.deadText.x = this.player.x - this.deadText.width/2;
+                    this.deadText.y = this.player.y -50;
                 })
             }
             this.dead = true;
@@ -325,7 +382,7 @@ function inputOn(){
 }
 
 function mobSpawn(scene,mobName,anim){
-    let spaw = Math.floor(Math.random()*10);
+    let spaw = Math.floor(Math.random()*19);
     let slime = scene.physics.add.sprite(scene.spawnLoc[spaw].x,scene.spawnLoc[spaw].y,mobName).setScale(3,3);
     slime.setSize(16,16);
     slime.anims.play(anim);
@@ -337,6 +394,7 @@ function mobSpawn(scene,mobName,anim){
     slime.hitTimer = scene.time.now;
     slime.lastSpeed = scene.time.now;
     slime.currSpeed = scene.time.now;
+    slime.gDrop = 1;
     scene.mobs.add(slime);
     //scene.currSpawns++;
 }

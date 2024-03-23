@@ -5,8 +5,18 @@ class Load extends Phaser.Scene{
     preload(){
         this.load.spritesheet('playerS','./assets/sprites/characters/player.png',{frameWidth: 48, frameHeight: 48});
         this.load.spritesheet('slimeS','./assets/sprites/characters/slime.png',{frameWidth: 32, frameHeight: 32});
+        this.load.spritesheet('merchant','./assets/NinjaAdventure/Actor/Characters/Inspector/SpriteSheet.png',{frameWidth: 16, frameHeight: 16});
+        this.load.spritesheet('quester','./assets/NinjaAdventure/Actor/Characters/Master/SpriteSheet.png',{frameWidth: 16, frameHeight: 16});
         this.load.tilemapTiledJSON('tilemap','assets/wipMap.tmj');
         this.load.image('baseTiles','assets/spritesheet.png ');
+        this.load.image('bonusTiles','assets/NinjaAdventure/Backgrounds//Tilesets/TilesetElement.png ');
+        this.load.image('merchantFace','./assets/NinjaAdventure/Actor/Characters/Inspector/Faceset.png');
+        this.load.image('questerFace','./assets/NinjaAdventure/Actor/Characters/Master/Faceset.png');
+        this.load.image('fish','./assets/NinjaAdventure/Items/Food/Fish.png');
+        this.load.image('sKey','./assets/NinjaAdventure/Items/Treasure/SilverKey.png');
+        this.load.image('coin','./assets/NinjaAdventure/Items/Treasure/GoldCoin.png');
+        this.load.image('katana','./assets/NinjaAdventure/Items/Weapons/Katana/Sprite.png');
+        this.load.bitmapFont('gem_font', 'assets/gem.png', 'assets/gem.xml');
     }
 
     create(){
