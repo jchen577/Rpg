@@ -8,6 +8,8 @@ class Load extends Phaser.Scene{
         this.load.spritesheet('merchant','./assets/NinjaAdventure/Actor/Characters/Inspector/SpriteSheet.png',{frameWidth: 16, frameHeight: 16});
         this.load.spritesheet('quester','./assets/NinjaAdventure/Actor/Characters/Master/SpriteSheet.png',{frameWidth: 16, frameHeight: 16});
         this.load.tilemapTiledJSON('tilemap','assets/wipMap.tmj');
+        this.load.image('inventory','./assets/Frames/IC/1/inventory2.png');
+        this.load.image('invSlot','./assets/Frames/IC/1/slot2.png');
         this.load.image('baseTiles','assets/spritesheet.png ');
         this.load.image('bonusTiles','assets/NinjaAdventure/Backgrounds//Tilesets/TilesetElement.png ');
         this.load.image('merchantFace','./assets/NinjaAdventure/Actor/Characters/Inspector/Faceset.png');

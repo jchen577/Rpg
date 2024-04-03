@@ -1,5 +1,8 @@
 /*
 Name: Jacky Chen
+Sources: https://www.youtube.com/watch?v=Yma-IddcyMM&list=WL&index=144&t=33s
+        https://kasayaa.itch.io/kasayas-inventory-and-frames?download
+        
 */
 const tileSize = 16;
 
@@ -10,10 +13,10 @@ let config = {
     physics: {
         default: 'arcade',
         arcade: {
-            debug: false,
+            debug: true,
         }
     },
-    scene: [Load, Play , GameOver]
+    scene: [Load, Play, Menu, GameOver]
 }
 
 let game = new Phaser.Game(config);

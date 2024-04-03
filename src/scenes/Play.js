@@ -10,8 +10,11 @@ class Play extends Phaser.Scene{
         this.maxSpawns = 20;
         this.currSpawns = 0;
         this.gold = 0;
+        this.playerDMGMult = 1;
+        this.bound1X = 1600;
+        this.bound1Y = 1600;
         this.keys = this.input.keyboard.createCursorKeys();
-        this.keys = this.input.keyboard.addKeys({ up: 'W', left: 'A', down: 'S', right: 'D', shift: 'SHIFT', reset: 'R', inter: 'E'});
+        this.keys = this.input.keyboard.addKeys({ up: 'W', left: 'A', down: 'S', right: 'D', shift: 'SHIFT', reset: 'R', inter: 'E', openInv: 'Q'});
 
         const map = this.make.tilemap({key:'tilemap'});//Tilemap
         const tileset = map.addTilesetImage('adventureTiles','baseTiles');
@@ -42,6 +45,7 @@ class Play extends Phaser.Scene{
         this.enemyS18 = map.findObject('Spawns',obj => obj.name === 'S18');
         this.enemyS19 = map.findObject('Spawns',obj => obj.name === 'S19');
 
+        this.slimeB = map.findObject('bossSpawns', obj => obj.name === 'slimeBoss');
 
         this.spawnLoc = [];
         this.spawnLoc[0] = this.enemyS;
@@ -78,8 +82,7 @@ class Play extends Phaser.Scene{
         this.npcs = this.add.group();
 
         this.mobs = this.add.group();//Mob group
-        this.mobSpeed = 40;
-        this.mobHP = 3;
+        bossSpawn(this,'slimeS','slimeIdle',300,100,100,50,this.slimeB,300,100);//slime Boss
 
         this.player = new Player(this,120,300,'playerS').setScale(3,3);//Create player
         this.player.setSize(14,16);
@@ -88,7 +91,7 @@ class Play extends Phaser.Scene{
         this.player.body.setCollideWorldBounds(true);
         this.cameras.main.setBounds(0,0,map.widthInPixels,map.heightInPixels);
         this.cameras.main.startFollow(this.player,true,0.25,0.25);
-        this.physics.world.setBounds(0,0,map.widthInPixels,map.heightInPixels);
+        this.physics.world.setBounds(0,0,this.bound1X,this.bound1Y);
 
         this.merchant = new NPC(this,200,48,'merchant',0,0).setScale(3.5);
         this.merchant.setImmovable();
@@ -127,13 +130,23 @@ class Play extends Phaser.Scene{
         }, [this, this.player]);
         this.player.body.allowGravity = false;
         this.player.body.setImmovable = false;
+        this.player.body.onWorldBounds = true;
+
+        this.player.body.world.on('worldbounds', function(player) {
+            if(player.x > 200){
+                console.log('level up!');
+            }
+            if(player.y > 200){
+                console.log('level up!');
+            }
+          }, this.player);
 
         //Add collision check when player swings
         this.physics.add.overlap(this.swordHitbox,this.mobs,(sword,enemy)=>{//Collision on side swing
             if(enemy.lastHit > enemy.hitTimer +350){
                 enemy.hitTimer = enemy.lastHit;
                 enemy.hit = true;
-                enemy.hp -= this.player.playerDmg;
+                enemy.hp -= this.player.playerDmg * this.playerDMGMult;
                 if(enemy.hp <=0){
                     enemy.anims.play('slimeDeath');
                     this.gold += enemy.gDrop;
@@ -143,10 +156,11 @@ class Play extends Phaser.Scene{
                         enemy.destroy();
                     });
                     this.currSpawns--;
-                    this.player.exp += 1;
-                    if(this.player.exp >= this.player.expToNextLvl){//level up logic
+                    this.player.exp += enemy.xpAdd;
+                    while(this.player.exp >= this.player.expToNextLvl){//level up logic
+                        let overfill = this.player.exp - this.player.expToNextLvl;
                         this.player.lvl +=1;
-                        this.player.exp = 0;
+                        this.player.exp = overfill;
                         this.player.expToNextLvl = Math.floor(Math.pow(this.player.lvl/0.5,2));
                         this.player.playerDmg += .5;
                         this.player.playerHPMax += 100;
@@ -158,7 +172,7 @@ class Play extends Phaser.Scene{
                     enemy.setTint(0xFF0000);
                     enemy.setVelocityY(500 * this.player.direction.y);
                     enemy.setVelocityX(500 * this.player.direction.x);
-                    this.time.delayedCall(300, () => {
+                    this.time.delayedCall(enemy.kb, () => {
                         enemy.clearTint();
                         enemy.setVelocity(0);
                         enemy.hit = false;
@@ -171,7 +185,7 @@ class Play extends Phaser.Scene{
             if(enemy.lastHit > enemy.hitTimer +350){
                 enemy.hitTimer = enemy.lastHit;
                 enemy.hit = true;
-                enemy.hp -= this.player.playerDmg;
+                enemy.hp -= this.player.playerDmg * this.playerDMGMult;
                 if(enemy.hp <=0){
                     enemy.anims.play('slimeDeath');
                     this.gold += enemy.gDrop;
@@ -181,10 +195,11 @@ class Play extends Phaser.Scene{
                         enemy.destroy();
                     });
                     this.currSpawns--;
-                    this.player.exp += 1;
-                    if(this.player.exp >= this.player.expToNextLvl){//level up logic
+                    this.player.exp += enemy.xpAdd;
+                    while(this.player.exp >= this.player.expToNextLvl){//level up logic
+                        let overfill = this.player.exp - this.player.expToNextLvl;
                         this.player.lvl +=1;
-                        this.player.exp = 0;
+                        this.player.exp = overfill;
                         this.player.expToNextLvl = Math.floor(Math.pow(this.player.lvl/0.5,2));
                         this.player.playerDmg += .5;
                         this.player.playerHPMax += 100;
@@ -196,7 +211,7 @@ class Play extends Phaser.Scene{
                     enemy.setTint(0xFF0000);
                     enemy.setVelocityY(500 * this.player.direction.y);
                     enemy.setVelocityX(500 * this.player.direction.x);
-                    this.time.delayedCall(300, () => {
+                    this.time.delayedCall(enemy.kb, () => {
                         enemy.clearTint();
                         enemy.setVelocity(0);
                         enemy.hit = false;
@@ -227,41 +242,46 @@ class Play extends Phaser.Scene{
         this.hpShowTime = this.time.now+1000;
 
         this.physics.add.overlap(this.player,this.mobs,(player,enemy)=>{//Player gets hit collision
-            let dirX = this.player.direction.x;
-            let dirY = this.player.direction.y;
-            if(dirX == 0){
-                if(enemy.body.velocity.x >0){
-                    dirX = -1;
-                }else{
-                    dirX = 1;
+            if(this.dead == false){
+                let dirX = this.player.direction.x;
+                let dirY = this.player.direction.y;
+                if(dirX == 0){
+                    if(enemy.body.velocity.x >0){
+                        dirX = -1;
+                    }else{
+                        dirX = 1;
+                    }
+                    if(enemy.body.velocity.y >0){
+                        dirY = -1;
+                    }else{
+                        dirY = 1;
+                    }
                 }
-                if(enemy.body.velocity.y >0){
-                    dirY = -1;
-                }else{
-                    dirY = 1;
+                if(this.lastHit > this.hitTimer +200){//Hit delay
+                    this.player.setTint(0xFF0000);
+                    this.input.keyboard.enabled = false;
+                    this.input.keyboard.resetKeys();
+                    this.time.delayedCall(300,inputOn,[],this);
+                    this.player.playerHP -= enemy.dmg;
+                    this.hitTimer = this.lastHit;
+                    this.player.setVelocityX(-300*dirX);
+                    this.player.setVelocityY(-300*dirY);
                 }
+                this.hpShowStart = this.time.now;
+                this.lastHit = this.time.now;
             }
-            if(this.lastHit > this.hitTimer +200){//Hit delay
-                this.player.setTint(0xFF0000);
-                this.input.keyboard.enabled = false;
-                this.input.keyboard.resetKeys();
-                this.time.delayedCall(300,inputOn,[],this);
-                this.player.playerHP -= 100;
-                this.hitTimer = this.lastHit;
-                this.player.setVelocityX(-300*dirX);
-                this.player.setVelocityY(-300*dirY);
-            }
-            this.hpShowStart = this.time.now;
-            this.lastHit = this.time.now;
-        })
+        });
     }
 
     update(){
+        if(Phaser.Input.Keyboard.JustDown(this.keys.openInv)){
+            this.scene.switch('menuScene');
+        }
         if(this.player.playerHP > 0){
             this.playerFSM.step();
             if(this.currSpawns <= 10){
                 this.currSpawns++;
-                this.time.delayedCall(1000, mobSpawn, [this,'slimeS','slimeIdle']);
+                this.time.delayedCall(1000, mobSpawn, [this,'slimeS','slimeIdle',1,1,3,40,this.spawnLoc,100,300]);
                 //mobSpawn(this,'slimeS');
             }
             this.xp.setPosition(this.cameras.main.centerX - config.width/2+150,this.cameras.main.centerY + config.height/2 -50);
@@ -306,41 +326,45 @@ class Play extends Phaser.Scene{
                         // if player to left of enemy AND enemy moving to right (or not moving)
                         if (this.player.x < enemy.x && enemy.body.velocity.x >= 0) {
                             // move enemy to left
-                            enemy.setVelocityX(-this.mobSpeed);
+                            enemy.setVelocityX(-enemy.speed);
                         }
                         // if player to right of enemy AND enemy moving to left (or not moving)
                         else if (this.player.x > enemy.x && enemy.body.velocity.x <= 0) {
                             // move enemy to right
-                            enemy.setVelocityX(this.mobSpeed);
+                            enemy.setVelocityX(enemy.speed);
                         }
 
                         if (this.player.y < enemy.y && enemy.body.velocity.y >= 0) {
                             // move enemy to left
-                            enemy.setVelocityY(-this.mobSpeed);
+                            enemy.setVelocityY(-enemy.speed);
                         }
                         // if player to right of enemy AND enemy moving to left (or not moving)
                         else if (this.player.y > enemy.y && enemy.body.velocity.y <= 0) {
                             // move enemy to right
-                            enemy.setVelocityY(this.mobSpeed);
+                            enemy.setVelocityY(enemy.speed);
                         }
                     }
                     else{
-                        if(enemy.currSpeed > enemy.lastSpeed + 1000){//enemy randomized movement
-                            let direc = Math.floor(Math.random()*5);
-                            if(direc == 0){
+                        if(enemy.currSpeed > enemy.lastSpeed + 700){//enemy randomized movement
+                            let direcY = Math.floor(Math.random()*3);
+                            if(direcY == 0){
                                 enemy.setVelocity(0);
                             }
-                            else if(direc == 1){
-                                enemy.setVelocityY(this.mobSpeed);
-                            }
-                            else if(direc == 2){
-                                enemy.setVelocityY(-this.mobSpeed);
-                            }
-                            else if(direc == 3){
-                                enemy.setVelocityX(this.mobSpeed);
+                            else if(direcY == 1){
+                                enemy.setVelocityY(enemy.speed);
                             }
                             else{
-                                enemy.setVelocityX(-this.mobSpeed);
+                                enemy.setVelocityY(-enemy.speed);
+                            }
+                            let direcX = Math.floor(Math.random()*3);
+                            if(direcX == 0){
+                                enemy.setVelocityX(enemy.speed);
+                            }
+                            else if(direcX == 1){
+                                enemy.setVelocityX(-enemy.speed);
+                            }
+                            else{
+                                enemy.setVelocity(0);
                             }
                             enemy.lastSpeed = this.time.now;
                         }
@@ -381,20 +405,43 @@ function inputOn(){
     this.player.setVelocity(0);
 }
 
-function mobSpawn(scene,mobName,anim){
-    let spaw = Math.floor(Math.random()*19);
-    let slime = scene.physics.add.sprite(scene.spawnLoc[spaw].x,scene.spawnLoc[spaw].y,mobName).setScale(3,3);
+function mobSpawn(scene,mobName,anim,money,expWorth,mobHP,mobSpeed,spawns,mobDmg,knockback){
+    let spaw = Math.floor(Math.random()*(spawns.length-1));
+    let slime = scene.physics.add.sprite(spawns[spaw].x,spawns[spaw].y,mobName).setScale(3,3);
     slime.setSize(16,16);
     slime.anims.play(anim);
     slime.body.setCollideWorldBounds(true);
     slime.body.setImmovable();
     slime.hit = false;
-    slime.hp = scene.mobHP;
+    slime.hp = mobHP;
     slime.lastHit = scene.time.now;
     slime.hitTimer = scene.time.now;
     slime.lastSpeed = scene.time.now;
     slime.currSpeed = scene.time.now;
-    slime.gDrop = 1;
+    slime.gDrop = money;
+    slime.xpAdd = expWorth;
+    slime.speed = mobSpeed;
+    slime.dmg = mobDmg;
+    slime.kb = knockback;
     scene.mobs.add(slime);
-    //scene.currSpawns++;
+}
+
+function bossSpawn(scene,mobName,anim,money,expWorth,mobHP,mobSpeed,spawns,mobDmg,knockback){
+    let slime = scene.physics.add.sprite(spawns.x,spawns.y,mobName).setScale(10,10);
+    slime.setSize(16,16);
+    slime.anims.play(anim);
+    slime.body.setCollideWorldBounds(true);
+    slime.body.setImmovable();
+    slime.hit = false;
+    slime.hp = mobHP;
+    slime.lastHit = scene.time.now;
+    slime.hitTimer = scene.time.now;
+    slime.lastSpeed = scene.time.now;
+    slime.currSpeed = scene.time.now;
+    slime.gDrop = money;
+    slime.xpAdd = expWorth;
+    slime.speed = mobSpeed;
+    slime.dmg = mobDmg;
+    slime.kb = knockback;
+    scene.mobs.add(slime);
 }
