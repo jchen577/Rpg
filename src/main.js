@@ -13,7 +13,7 @@ let config = {
     physics: {
         default: 'arcade',
         arcade: {
-            debug: true,
+            debug: false,
         }
     },
     scene: [Load, Play, Menu, GameOver]
@@ -22,3 +22,5 @@ let config = {
 let game = new Phaser.Game(config);
 let borderUISize = game.config.height/15;
 let borderPadding = borderUISize/3;
+let invArr = [[1,0,0,0,0,0,0,0],[0,0,0,0,0,2,0,0],[0,0,0,0,0,0,0,0],[0,3,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]];
+let openInv = false;

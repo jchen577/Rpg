@@ -69,8 +69,6 @@ class Play extends Phaser.Scene{
         this.spawnLoc[18] = this.enemyS19;
         this.spawnLoc[19] = this.enemyS20;
 
-
-        //this.greenB = this.add.rectangle(config.width/2,config.height/2,config.width,config.height,0x355E3B);
         //Create hitboxes for when player attacks
         this.swordHitbox = this.add.rectangle(0,0,48,64,0xffffff);
         this.physics.add.existing(this.swordHitbox);
@@ -275,6 +273,7 @@ class Play extends Phaser.Scene{
 
     update(){
         if(Phaser.Input.Keyboard.JustDown(this.keys.openInv)){
+            openInv = true;
             this.scene.switch('menuScene');
         }
         if(this.player.playerHP > 0){
@@ -444,4 +443,16 @@ function bossSpawn(scene,mobName,anim,money,expWorth,mobHP,mobSpeed,spawns,mobDm
     slime.dmg = mobDmg;
     slime.kb = knockback;
     scene.mobs.add(slime);
+}
+
+function addInv(item){
+    for(let i = 0; i < invArr.length;i++){ 
+        for(let j = 0; j < invArr[i].length;j++){
+            if(invArr[i][j] == 0){
+                invArr[i][j] = item;
+                return;
+            }
+        }
+    }
+    return;
 }

@@ -9,6 +9,7 @@ class NPC extends Phaser.Physics.Arcade.Sprite {
 
     activity(){
         console.log('working act');
+        this.addInv(3);
         //this.freezeKeys();
     }
 
@@ -23,4 +24,15 @@ class NPC extends Phaser.Physics.Arcade.Sprite {
         this.scene.input.keyboard.enabled = true;
     }
 
+    addInv(item){
+        for(let i = 0; i < invArr.length;i++){ 
+            for(let j = 0; j < invArr[i].length;j++){
+                if(invArr[i][j] == 0){
+                    invArr[i][j] = item;
+                    return;
+                }
+            }
+        }
+        return;
+    }
 }
