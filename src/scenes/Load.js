@@ -18,6 +18,7 @@ class Load extends Phaser.Scene{
         this.load.image('sKey','./assets/NinjaAdventure/Items/Treasure/SilverKey.png');
         this.load.image('coin','./assets/NinjaAdventure/Items/Treasure/GoldCoin.png');
         this.load.image('katana','./assets/NinjaAdventure/Items/Weapons/Katana/Sprite.png');
+        this.load.image('loadbg','./assets/loadbg.png');
         this.load.bitmapFont('gem_font', 'assets/gem.png', 'assets/gem.xml');
     }
 
@@ -103,7 +104,7 @@ class Load extends Phaser.Scene{
             frameRate: 1,
             repeat: 0,
         });
-        this.scene.start('playScene');
+        this.scene.start('startScene');
     }
 
     update(){

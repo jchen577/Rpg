@@ -7,8 +7,9 @@ class Menu extends Phaser.Scene{
     preload(){
     }
     create(){
+        this.input.mouse.disableContextMenu();
         this.itemG = this.add.group();
-        this.sprites = {0: 'invSlot',1:'fish',2:'sKey', 3:'coin'};
+        this.sprites = {0: 'invSlot',1:'fish',2:'sKey', 3:'coin', 4:'katana'};
 
         this.keys = this.input.keyboard.createCursorKeys();
         this.keys = this.input.keyboard.addKeys({ up: 'W', left: 'A', down: 'S', right: 'D', shift: 'SHIFT', reset: 'R', inter: 'E', openInv: 'Q'});
@@ -58,8 +59,12 @@ function refresh(scene){//Refresh inventory when stop dragging
     }
 }
 
-function startDrag(){//When start dragging, move item to front and start other inputs
+function startDrag(pointer){//When start dragging, move item to front and start other inputs
     this.scene.children.bringToTop(this);
+    if(pointer.rightButtonDown()){
+        console.log('hi');
+        return;
+    }
     this.off(Phaser.Input.Events.POINTER_DOWN,startDrag);
     this.on(Phaser.Input.Events.POINTER_UP,stopDrag);
     this.on(Phaser.Input.Events.POINTER_MOVE,onDrag);
