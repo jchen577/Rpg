@@ -6,6 +6,7 @@ class Play extends Phaser.Scene{
     }
 
     create(){
+
         this.dead = false;
         this.maxSpawns = 20;
         this.currSpawns = 0;
@@ -19,7 +20,7 @@ class Play extends Phaser.Scene{
         const map = this.make.tilemap({key:'tilemap'});//Tilemap
         const tileset = map.addTilesetImage('adventureTiles','baseTiles');
         const tileset2 = map.addTilesetImage('extraTiles','bonusTiles');
-
+    
         const Layer2 = map.createLayer('Tile Layer 2',tileset);
         const Layer3 = map.createLayer('Tile Layer 3',tileset2);
         const Layer1 = map.createLayer('Tile Layer 1',tileset);
@@ -117,7 +118,10 @@ class Play extends Phaser.Scene{
         });
         this.physics.add.collider(this.player,Layer1);
         this.physics.add.collider(this.mobs,Layer1)
-
+///////////////////////////////////////////////////////////////
+        this.test = new Grid(8)
+        this.test.start(map)
+//////////////////////////////////////////////////////////////
         //Setup player statemachine
         this.playerFSM = new StateMachine('idle', {
             idle: new IdleState(),
@@ -269,9 +273,27 @@ class Play extends Phaser.Scene{
                 this.lastHit = this.time.now;
             }
         });
+        /*this.counter = 0;
+        this.ty = true;
+        this.path = findPath([this.player.x,this.player.y],[2400,2240],this.test)*/
     }
 
+    /*onEvent(path){
+        this.ty = true;
+    }*/
+
     update(){
+        /*if(this.counter < this.path.length && this.ty){
+            this.player.x = this.path[this.counter].worldPos[0]
+            this.player.y = this.path[this.counter].worldPos[1]
+            this.counter++;
+            this.ty = false;
+            this.timedEvent = this.time.delayedCall(1000, this.onEvent, [this.path], this,true);
+        }*/
+        ///////////////////////////////////////////////////////////////////////
+        //console.log(findPath([this.player.x,this.player.y],[2400,2240],this.test))
+        findPath([this.player.x,this.player.y],[2400,2240],this.test)
+        ///////////////////////////////////////////////////////////////////
         if(Phaser.Input.Keyboard.JustDown(this.keys.openInv)){
             openInv = true;
             this.scene.switch('menuScene');
@@ -455,4 +477,67 @@ function addInv(item){
         }
     }
     return;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function findPath(startPos, targetPos, grid){
+    let startNode = grid.nodeFromWP(startPos);
+    let targetNode = grid.nodeFromWP(targetPos);
+    let openNodes = [];
+    let closedNodes = new Set();
+    openNodes.push(startNode);
+    while (openNodes.length > 0){
+        let current = openNodes[0];
+        for(let i = 1; i < openNodes.length; i ++){
+            if(openNodes[i].fCost < current.fCost || ((openNodes[i].fCost == current.fCost) && openNodes[i].hCost < current.hCost)){
+                current = openNodes[i];
+            }
+        }
+        openNodes.pop(current);
+        closedNodes.add(current);
+        if(current == targetNode){
+            return retracePath(startNode,targetNode);
+        }
+        grid.getNeighbors(current).forEach((neighbor)=>{
+            if(neighbor.walkable || closedNodes.has(neighbor)){
+            }
+            else{
+                let newNeighborCost = current.gCost + getDistance(current,neighbor);
+                if(newNeighborCost < neighbor.gCost || !openNodes.includes(neighbor)){
+                    neighbor.gCost = newNeighborCost;
+                    neighbor.hCost = getDistance(neighbor,targetNode);
+                    neighbor.fCost = neighbor.gCost + neighbor.hCost;
+                    neighbor.parent = current;
+                    if(!openNodes.includes(neighbor)){
+                        openNodes.push(neighbor);
+                    }
+                }
+            }
+        });
+    }
+}
+
+function getDistance(node1, node2){
+    let distance = 0;
+    let xDist = Math.abs(node1.gridX - node2.gridX);
+    let yDist = Math.abs(node1.gridY - node2.gridY);
+    if(xDist < yDist){
+        distance += 14*xDist;
+        distance += 10*(yDist - xDist);
+    }
+    else{
+        distance += 14*yDist;
+        distance += 10*(xDist - yDist);
+    }
+    return distance;
+}
+
+function retracePath(startNode, endNode){
+    let path = [];
+    let current = endNode;
+    while(current != startNode){
+        path.push(current);
+        current = current.parent;
+    }
+    path.reverse();
+    return path;
 }
