@@ -273,26 +273,26 @@ class Play extends Phaser.Scene{
                 this.lastHit = this.time.now;
             }
         });
-        /*this.counter = 0;
+        this.counter = 0;
         this.ty = true;
-        this.path = findPath([this.player.x,this.player.y],[2400,2240],this.test)*/
+        this.path = findPath([this.player.x,this.player.y],[1400,1240],this.test)
     }
 
-    /*onEvent(path){
+    onEvent(path){
         this.ty = true;
-    }*/
+    }
 
     update(){
-        /*if(this.counter < this.path.length && this.ty){
-            this.player.x = this.path[this.counter].worldPos[0]
-            this.player.y = this.path[this.counter].worldPos[1]
+        if(this.counter < this.path.length && this.ty){
+            this.player.x = this.path[this.counter].worldPos[0]-this.player.width/2
+            this.player.y = this.path[this.counter].worldPos[1]-this.player.height/2
             this.counter++;
             this.ty = false;
-            this.timedEvent = this.time.delayedCall(1000, this.onEvent, [this.path], this,true);
-        }*/
+            this.timedEvent = this.time.delayedCall(100, this.onEvent, [this.path], this,true);
+        }
         ///////////////////////////////////////////////////////////////////////
         //console.log(findPath([this.player.x,this.player.y],[2400,2240],this.test))
-        findPath([this.player.x,this.player.y],[2400,2240],this.test)
+        //findPath([this.player.x,this.player.y],[2400,2240],this.test)
         ///////////////////////////////////////////////////////////////////
         if(Phaser.Input.Keyboard.JustDown(this.keys.openInv)){
             openInv = true;
@@ -492,13 +492,13 @@ function findPath(startPos, targetPos, grid){
                 current = openNodes[i];
             }
         }
-        openNodes.pop(current);
+        openNodes.splice(current,1);
         closedNodes.add(current);
         if(current == targetNode){
             return retracePath(startNode,targetNode);
         }
         grid.getNeighbors(current).forEach((neighbor)=>{
-            if(neighbor.walkable || closedNodes.has(neighbor)){
+            if(!neighbor.walkable || closedNodes.has(neighbor)){
             }
             else{
                 let newNeighborCost = current.gCost + getDistance(current,neighbor);
@@ -540,4 +540,8 @@ function retracePath(startNode, endNode){
     }
     path.reverse();
     return path;
+}
+
+function followPath(enem,path){
+    
 }
